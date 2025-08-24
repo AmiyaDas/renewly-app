@@ -7,7 +7,6 @@ import { useEffect } from "react";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: false,
     shouldShowBanner: true,
@@ -18,6 +17,7 @@ Notifications.setNotificationHandler({
 export default function HomeScreen() {
   useEffect(() => {
     // Create channel for Android
+    console.log("Setting up notification channel");
     if (Platform.OS === "android") {
       Notifications.setNotificationChannelAsync("default", {
         name: "default",
@@ -28,10 +28,10 @@ export default function HomeScreen() {
     }
   }, []);
 
-  const onDisplayNotification = async () => {
+  const onDisplayNotification = async (title: string) => {
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: "Hello 👋",
+        title: title || "Hello",
         body: "This is a local notification!",
       },
       trigger: {
@@ -45,12 +45,20 @@ export default function HomeScreen() {
       <Button
         title="Display Notification"
         onPress={() => {
-          onDisplayNotification();
+          onDisplayNotification("Hello from app!");
         }}
       />
       <WebView
         source={{ uri: "https://amiyadas.github.io/renewly/" }}
         style={{ flex: 1 }}
+        onMessage={(event) => {
+          const data = JSON.parse(event.nativeEvent.data);
+          console.log("Received message from WebView:", data);
+          if (data.type === "REGISTER_PUSH") {
+            console.log("Register user for push:", data.payload);
+            onDisplayNotification("Hello from browser!");
+          }
+        }}
       />
     </SafeAreaView>
   );
