@@ -28,11 +28,11 @@ export default function HomeScreen() {
     }
   }, []);
 
-  const onDisplayNotification = async (title: string) => {
+  const onDisplayNotification = async (title: string, body: string) => {
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: title || "Hello",
-        body: "This is a local notification!",
+        title: title || "Renewly",
+        body: body || "",
       },
       trigger: {
         type: SchedulableTriggerInputTypes.TIME_INTERVAL,
@@ -42,12 +42,12 @@ export default function HomeScreen() {
   };
   return (
     <SafeAreaView style={styles.container}>
-      <Button
+      {/* <Button
         title="Display Notification"
         onPress={() => {
           onDisplayNotification("Hello from app!");
         }}
-      />
+      /> */}
       <WebView
         source={{ uri: "https://amiyadas.github.io/renewly/" }}
         style={{ flex: 1 }}
@@ -56,7 +56,7 @@ export default function HomeScreen() {
           console.log("Received message from WebView:", data);
           if (data.type === "REGISTER_PUSH") {
             console.log("Register user for push:", data.payload);
-            onDisplayNotification("Hello from browser!");
+            onDisplayNotification(data.payload?.title, data.payload?.body);
           }
         }}
       />
